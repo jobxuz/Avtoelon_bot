@@ -21,4 +21,5 @@ async def get_user_active_cars(user):
     else:
         matching_cars = []
 
-    return matching_cars[:3]
+    return matching_cars[:5]
+

@@ -135,11 +135,16 @@ async def process_brand(callback_query: CallbackQuery, state: FSMContext):
         all_cars_elon = await sync_to_async(list)(AllCar.objects.all()[:5])
 
         for all_cars_info in all_cars_elon:
-            media = [
+            if all_cars_info.images_str:
+                media = [
                 InputMediaPhoto(media=all_cars_info.images_str[:89], caption=f"{all_cars_info.full_title}\nNarxi: {all_cars_info.price_text}\n{all_cars_info.description_params_str}\n{all_cars_info.main_url}"),
             ]
 
-            await callback_query.message.bot.send_media_group(chat_id=callback_query.from_user.id, media=media)
+                await callback_query.message.bot.send_media_group(chat_id=callback_query.from_user.id, media=media)
+            else:
+                await callback_query.message.answer(
+                f"{all_cars_info.full_title}\nNarxi: {all_cars_info.price_text}\n{all_cars_info.description_params_str}\n{all_cars_info.main_url}"
+            )
         await callback_query.message.answer(f"Detecsia yaratildi\n\nAsosiy menu",reply_markup=mainmenu_key)
         await state.clear()
     else:
