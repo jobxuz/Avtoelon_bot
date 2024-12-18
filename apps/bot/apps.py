@@ -6,4 +6,7 @@ class BotConfig(AppConfig):
     name = 'apps.bot'
 
     def ready(self):
-        import apps.bot.signals  # noqa
+        import apps.bot.signals  
+
+    def ready(self):
+        import apps.bot.tasks

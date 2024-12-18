@@ -21,7 +21,7 @@ class TelegramWebhook(View):
 
     async def post(self, request):
         # telegram_conf = TelegramBotConfiguration.get_solo()
-        bot = Bot(token='7829701634:AAGZM1qqPFht_JceHbesSIc1w6YoYaYyB0Y', default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+        bot = Bot(token='7889303549:AAG4k3jSK0anRSl6yezyKH_zOBDp_iKnt6U', default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 
         try:
             data = json.loads(request.body)

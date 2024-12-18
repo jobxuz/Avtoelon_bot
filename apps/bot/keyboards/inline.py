@@ -1,143 +1,187 @@
-from aiogram.utils.keyboard import InlineKeyboardBuilder
-from apps.bot.utils.db_manager import db
-from apps.bot.utils.callback_data import cb_main_menu_callback_data, MainMenuAction, cb_back_to_main_menu_callback_data, \
-    cb_select_language_callback_data, SelectLanguage, BranchCallbackData, \
-    CategoryCallbackData, back_to_food_menu_callback_data, \
-    BackToFoodMenuAction, ProductItemOrderCallbackData, ProductOrderCallbackData
-
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.utils.keyboard import InlineKeyboardBuilder
+from asgiref.sync import sync_to_async
+from math import ceil
+from apps.bot.models import CarBrand, CarModel
 
 
-def inline_back_to_main_menu():
+
+
+# @sync_to_async
+# def get_car_brands():
+#     return CarBrand.objects.all()
+
+# @sync_to_async
+# def get_car_models():
+#     return CarModel.objects.all()
+
+
+
+
+language_key = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [
+            InlineKeyboardButton(text='🇺🇿 uz',callback_data='uz'),
+            InlineKeyboardButton(text='🇺🇸 eng',callback_data='en'),
+            InlineKeyboardButton(text='🇷🇺 ru',callback_data='ru')
+        ],
+    ]
+)
+
+
+
+mainmenu_key = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [
+            InlineKeyboardButton(text='Yangi detektsiya yaratish',callback_data='new_detection'),
+            InlineKeyboardButton(text='Faol detektsiyalar',callback_data="activedetections")
+        ],
+        [
+            InlineKeyboardButton(text='Sozlamalar',callback_data='settings')
+        ],
+    ]
+)
+
+
+detecsi_key = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [
+            InlineKeyboardButton(text='Detektsiya yaratish',callback_data='createdetecsia'),
+            InlineKeyboardButton(text="Filtr qo‘shish",callback_data="carfilter")
+        ],
+        [
+            InlineKeyboardButton(text='Ortga',callback_data='backdetecsia')
+        ],
+    ]
+)
+
+
+
+
+# def create_car_brands_key(car_brands):
+#     inline_keyboard = InlineKeyboardBuilder()
+#     for brand in car_brands:
+#         inline_keyboard.button(
+#             text=brand.name,
+#             callback_data=f"{brand.name}"
+#         )
+
+#     inline_keyboard.adjust(2)
+#     return inline_keyboard.as_markup()
+
+
+def create_car_brands_key(car_brands, page=1, page_size=10):
     inline_keyboard = InlineKeyboardBuilder()
 
-    inline_keyboard.button(text='Asosiy menu',
-                           callback_data=cb_back_to_main_menu_callback_data())
+    # Pagination hisoblash
+    total_pages = ceil(len(car_brands) / page_size)
+    start = (page - 1) * page_size
+    end = start + page_size
+    current_page_items = car_brands[start:end]
+
+    # Car brand tugmalarini qo'shish
+    for brand in current_page_items:
+        inline_keyboard.button(
+            text=brand.name,
+            callback_data=f"{brand.name}"  # Brendni aniqlash uchun callback_data
+        )
+
+    # Sahifa tugmalarini qo‘shish
+    if page > 1:
+        inline_keyboard.button(
+            text="⬅️ Oldingi",
+            callback_data=f"page:{page - 1}"  # Oldingi sahifa uchun callback
+        )
+    if page < total_pages:
+        inline_keyboard.button(
+            text="Keyingi ➡️",
+            callback_data=f"page:{page + 1}"  # Keyingi sahifa uchun callback
+        )
+
+    inline_keyboard.adjust(2)  # Har bir qatorda 2 ta tugma
     return inline_keyboard.as_markup()
 
 
-def inline_main_menu():
+
+
+
+
+# def create_car_models_key(car_models):
+#     inline_keyboard = InlineKeyboardBuilder()
+
+#     for model in car_models:
+#         inline_keyboard.button(
+#             text=model.name,
+#             callback_data=f"{model.name.lower()}" 
+#         )
+
+#     inline_keyboard.adjust(2)
+#     return inline_keyboard.as_markup()
+
+
+
+def create_car_models_key(car_models, page=1, page_size=10):
     inline_keyboard = InlineKeyboardBuilder()
 
-    inline_keyboard.button(text='🏠️️ Buyurtma berish',
-                           callback_data=cb_main_menu_callback_data(action=MainMenuAction.ORDER))
-    inline_keyboard.button(text='Biz haqimizda', callback_data=cb_main_menu_callback_data(action=MainMenuAction.ABOUT))
-    inline_keyboard.button(text='Buyurtmalarim',
-                           callback_data=cb_main_menu_callback_data(action=MainMenuAction.MY_ORDERS))
-    inline_keyboard.button(text='Filiallar', callback_data=cb_main_menu_callback_data(action=MainMenuAction.BRANCHES))
-    inline_keyboard.button(text='Sozlamalar', callback_data=cb_main_menu_callback_data(action=MainMenuAction.SETTINGS))
+    # Pagination hisoblash
+    total_pages = ceil(len(car_models) / page_size)
+    start = (page - 1) * page_size
+    end = start + page_size
+    current_page_items = car_models[start:end]
 
-    inline_keyboard.adjust(2)
+    # Model tugmalarini qo'shish
+    for model in current_page_items:
+        inline_keyboard.button(
+            text=model.name,
+            callback_data=f"{model.name.lower()}"  # Callback uchun model nomi
+        )
 
+    # Sahifa tugmalarini qo‘shish
+    if page > 1:
+        inline_keyboard.button(
+            text="⬅️ Oldingi",
+            callback_data=f"model_page:{page - 1}"
+        )
+    if page < total_pages:
+        inline_keyboard.button(
+            text="Keyingi ➡️",
+            callback_data=f"model_page:{page + 1}"
+        )
+
+    inline_keyboard.adjust(2)  # Har bir qatorda 2 ta tugma
     return inline_keyboard.as_markup()
 
 
-def inline_subscribe():
+
+
+def detecsia_key(detecsias):
     inline_keyboard = InlineKeyboardBuilder()
 
-    inline_keyboard.button(text='Subscribe', url='https://t.me/oqtepalavashuz')
-
-    return inline_keyboard.as_markup()
-
-
-def inline_languages():
-    inline_keyboard = InlineKeyboardBuilder()
-    inline_keyboard.button(text='Uzbek', callback_data=cb_select_language_callback_data(lang=SelectLanguage.UZ))
-    inline_keyboard.button(text='Russian', callback_data=cb_select_language_callback_data(lang=SelectLanguage.RU))
-    inline_keyboard.button(text='English', callback_data=cb_select_language_callback_data(lang=SelectLanguage.EN))
+    for detecsia in detecsias:
+        inline_keyboard.button(
+            text=f"{detecsia.car_brand}|{detecsia.car_model} | {'✅' if detecsia.is_active else '❌'}",
+            callback_data=f"{detecsia.car_brand}_{detecsia.car_model}" 
+        )
 
     inline_keyboard.adjust(1)
-
     return inline_keyboard.as_markup()
 
 
-async def inline_branches():
-    inline_keyboard = InlineKeyboardBuilder()
-    branches = await db.fetch("SELECT branch_id, name FROM branches")
-    for branch in branches:
-        inline_keyboard.button(
-            text=branch['name'],
-            callback_data=BranchCallbackData(branch_id=branch['branch_id']).pack()
-        )
-    inline_keyboard.button(text='Asosiy menu',
-                           callback_data=cb_back_to_main_menu_callback_data())
-    inline_keyboard.adjust(2)
-    return inline_keyboard.as_markup()
 
 
-async def inline_categories(categories):
-    inline_keyboard = InlineKeyboardBuilder()
-    for category in categories:
-        inline_keyboard.button(
-            text=category['name'],
-            callback_data=CategoryCallbackData(category_id=category['category_id']).pack()
-        )
-    inline_keyboard.button(text='Ortga',
-                           callback_data=back_to_food_menu_callback_data(action=BackToFoodMenuAction.BACK))
-    inline_keyboard.adjust(2)
-
-    return inline_keyboard.as_markup()
-
-
-async def inline_product_catalog(products: list):
-    inline_keyboard = InlineKeyboardBuilder()
-    for product in products:
-        inline_keyboard.button(
-            text=product['name'],
-            callback_data=ProductOrderCallbackData(product_id=product['product_id']).pack()
-        )
-    inline_keyboard.button(text="Ortga",
-                           callback_data=back_to_food_menu_callback_data(action=BackToFoodMenuAction.BACK))
-
-    inline_keyboard.adjust(2)
-    return inline_keyboard.as_markup()
-
-
-def inline_settings():
-    inline_keyboard = InlineKeyboardBuilder()
-
-    inline_keyboard.button(text="Muloqot tili", callback_data='settings')
-    inline_keyboard.button(text="Telefon", callback_data='phone')
-    inline_keyboard.button(text="Shahar", callback_data='city')
-    inline_keyboard.button(text="Asosiy menu", callback_data=cb_back_to_main_menu_callback_data())
-    inline_keyboard.adjust(3)
-
-    return inline_keyboard.as_markup()
-
-
-def inline_order_food_item_keyboard(product_id: int, quantity: int):
-    return InlineKeyboardMarkup(
-        inline_keyboard=[
-            [
-                InlineKeyboardButton(text="-", callback_data=ProductItemOrderCallbackData(action="decrease",
-                                                                                          product_id=product_id,
-                                                                                          quantity=quantity).pack()),
-                InlineKeyboardButton(text=f"{quantity}", callback_data="ignore"),
-                InlineKeyboardButton(text="+", callback_data=ProductItemOrderCallbackData(action="increase",
-                                                                                          product_id=product_id,
-                                                                                          quantity=quantity).pack()),
-            ],
-            [
-                InlineKeyboardButton(text="🛒 Add to Cart",
-                                     callback_data=ProductItemOrderCallbackData(action="add_to_cart",
-                                                                                product_id=product_id,
-                                                                                quantity=quantity).pack())
-            ],
-            [
-                InlineKeyboardButton(text="🔙 Back",
-                                     callback_data=ProductItemOrderCallbackData(action="back", product_id=product_id,
-                                                                                quantity=quantity).pack())
-            ],
+detecsia_update_key = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [
+            InlineKeyboardButton(text='Faollashtirish/Faolsizlantirish',callback_data='detecsia_update'),
+            InlineKeyboardButton(text='Filtrlarni o‘zgartirish',callback_data='update_filter')
+            
+        ],
+        [
+            InlineKeyboardButton(text='Detektsiyani o‘chirish',callback_data='delete_detecsia'),
+            InlineKeyboardButton(text='Hisobot',callback_data='hisobot')
+        ],
+        [
+            InlineKeyboardButton(text='Bosh sahifa',callback_data='boshsahifa')
         ]
-    )
-
-
-def inline_nearest_branches(branches):
-    inline_keyboard = InlineKeyboardBuilder()
-    for branch in branches:
-        inline_keyboard.button(
-            text=branch['name'],
-            callback_data=BranchCallbackData(branch_id=branch['branch_id']).pack()
-        )
-    inline_keyboard.adjust(1)
-    return inline_keyboard.as_markup()
+    ]
+)

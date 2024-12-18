@@ -7,8 +7,17 @@ class RegistrationStateGroup(StatesGroup):
     name = State()
 
 
-class OrderStateGroup(StatesGroup):
-    order_type = State()
-    send_location = State()
-    choose_branch_for_take_away = State()
-    choose_food = State()
+
+class NewDetecsiaStatesGroup(StatesGroup):
+    brend = State()
+    model = State()
+    yaratish = State()
+
+
+
+class DetecsiaUpdate(StatesGroup):
+    one_detecsia = State()
+    update_detecsia = State()
+    update_filter = State()
+    delete_detecsia = State()
+    report_detecsia = State()
