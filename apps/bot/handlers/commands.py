@@ -128,15 +128,17 @@ async def help_command(message: types.Message):
 
     for car in user_cars:
 
-        if car.images_str:
-            media = [
-                InputMediaPhoto(
-                    media=car.images_str[:89], 
-                    caption=f"{car.full_title}\nNarxi: {car.price_text}\n{car.description_params_str}\n{car.main_url}"
-                )
-            ]
-            await message.bot.send_media_group(chat_id=message.chat.id, media=media)
-        else:
-            await message.answer(
-                f"{car.full_title}\nNarxi: {car.price_text}\n{car.description_params_str}\n{car.main_url}"
-            )
+        # if car.images_str:
+        #     media = [
+        #         InputMediaPhoto(
+        #             media=car.images_str[:89], 
+        #             caption=f"{car.full_title}\nNarxi: {car.price_text}\n{car.description_params_str}\n{car.main_url}"
+        #         )
+        #     ]
+        #     await message.bot.send_media_group(chat_id=message.chat.id, media=media)
+        # else:
+        #     await message.answer(
+        #         f"{car.full_title}\nNarxi: {car.price_text}\n{car.description_params_str}\n{car.main_url}"
+        #     )
+
+        await message.answer(f"{car.full_title}\nNarxi: {car.price_text}\n{car.description_params_str}\n{car.main_url}",reply_markup=mainmenu_key)
